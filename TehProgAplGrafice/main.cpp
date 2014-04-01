@@ -6,7 +6,7 @@
 int thisone;
 int dpi = 72;
 int n = width*height;
-const int aadepth = 5;
+int aadepth = 5;
 RGBType *pixels = new RGBType[n];
 RGBType pix[width][height];
 double aathreshold = 0.1;
@@ -71,9 +71,9 @@ void renderTask(int i, int j, int xlength, int ylength){
 			thisone = y*xlength + x;
 
 			// start with a blank pixel
-			double tempRed[aadepth*aadepth];
-			double tempGreen[aadepth*aadepth];
-			double tempBlue[aadepth*aadepth];
+			double *tempRed = new double[aadepth*aadepth];
+			double *tempGreen = new double[aadepth*aadepth];
+			double *tempBlue = new double[aadepth*aadepth];
 
 			for (int aax = 0; aax < aadepth; aax++) {
 				for (int aay = 0; aay < aadepth; aay++) {
@@ -84,7 +84,9 @@ void renderTask(int i, int j, int xlength, int ylength){
 
 					_i++;
 
-					printf_s("\r Progress: %4.4g %c", percent,'%');
+					percent = (double) ((int) (percent * 100)) / 100;
+
+					printf_s("\r Progress: %4g%%", percent);
 					
 					aa_index = aay*aadepth + aax;
 
@@ -236,7 +238,7 @@ int render() {
 		}
 	}
 
-	savebmp("scene_aa5.bmp", width, height, dpi, pixels);
+	savebmp("scene_aa.bmp", width, height, dpi, pixels);
 
 	delete pixels, tempRed, tempGreen, tempBlue;
 
@@ -273,7 +275,13 @@ void display(void) {
 	glFlush();
 }
 
-void main(int argc, char **argv) {
+int main(int argc, char **argv) {
+	cout << " Antialiasing depth : "; cin >> aadepth;
+	
+	if (!(aadepth > 0 && aadepth < 64)){
+		printf_s("Antialiasing %d eronat!. Exit...", aadepth);
+		return 0;
+	}
 	render();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
@@ -283,4 +291,5 @@ void main(int argc, char **argv) {
 	glutDisplayFunc(display);
 	myinit();
 	glutMainLoop();
+	return 0;
 }
